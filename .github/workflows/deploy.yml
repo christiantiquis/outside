@@ -1,0 +1,21 @@
+name: Deploy to homelab1
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: outside-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, homelab-outside]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start Outside
+        run: docker compose up -d --build --wait --wait-timeout 120
+      - name: Verify application
+        run: |
+          curl --fail --retry 5 --retry-delay 3 http://127.0.0.1:9102/health
+          curl --fail --silent http://127.0.0.1:9102/ | grep -q 'Outside'

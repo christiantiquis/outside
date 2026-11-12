@@ -1,0 +1,20 @@
+name: outside
+services:
+  web:
+    build: .
+    image: outside-web:latest
+    ports:
+      - "9102:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
